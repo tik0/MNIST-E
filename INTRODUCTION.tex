@@ -1,0 +1,132 @@
+\section{INTRODUCTION}
+%
+%
+%However, while the automated discovery of the structure in raw data by a DNN is a time-consuming and error-prone task, an additional pre-processing step that performs feature extraction on the data helps to make DNNs more robust, and to downsize and even transfer them more easily \cite{Higgins2017}.
+\textit{Auto Encoder} (AE), \textit{Variational Auto Encoder} (VAE), and more recently \textit{Disentangled Variational Auto Encoder} ($\beta$-VAE) have a considerable impact on the field of data-driven leaning of generative models.
+%
+Furthermore, recent investigations have shown the fruitful applicability to \textit{deep reinforcement learning} (DRL) as well as bi-directionally exchange of multi-modal data.
+%
+VAEs tend to encode the data into latent space features that are (ideally) linearly separable as shown by \cite{Higgins2017_2}.
+They also allow the discovery of generative joint models (e.g. \cite{Suzuki2017}), as well as zero-shot domain transfer in DRL as shown by \cite{Higgins2017}.
+%
+
+However, a good generative model should not just generate good data and achieve a good quantitative score, but also gives a coherent and expressive latent space representation.
+%
+This property is decisive for multi-modal approaches if the data shows correlation, as it is the case for every sensor setup designed for sensor fusion.
+%
+With this contribution, we investigate the characteristic of the latent space as well as the quantitative features for existing multi-modal VAEs.
+%
+Furthermore, we propose a novel approach to build and train a novel multi-modal VAE (M\textsuperscript{2}VAE) which comprises the complete marginal joint log-likelihood without simplifying assumptions.
+%
+As our objective is the consideration of raw multi-modal sensor data, we also propose an approach to generate correlated multi-modal datasets from available uni-modal ones.
+%
+Lastly, we draw connections to in-place sensor fusion and epistemic (ambiguity-resolving) active-sensing.
+
+Section \ref{sec:related_work} comprises the related work on multi-modal VAEs.
+%
+Our comprehensive approach (i.e. M\textsuperscript{2}VAE) is given in Sec. \ref{sec:models}.
+%
+Furthermore, we describe multi-modal datasets as well as the generation of correlated sets in Sec. \ref{sec:data_generation} which are evaluated in Sec. \ref{sec:experiment}.
+%
+Finally, we conclude our work in Sec. \ref{sec:conclusion}.
+
+
+
+\begin{confidential}
+\textbf{-------------------------------------------------}
+
+indicate that only the  
+
+Second, a multi-modal generative model is applied to retrieve a common latent embedding of the observations and to estimate the \textit{evidence lower bound} (ELBO) as a quantity of free energy.
+
+
+by means of a coherent representation between 
+However, while multi-modal VAE approaches do exist, comprehensive evaluation on 
+
+Section \ref{sec:models} presents the derivation of a multi-modal VAE (M²VAE) which suits our needs to find a coherent posterior distribution.
+
+
+
+
+To address this issue, we propose a novel approach to AS which intrinsically reduces ambiguities of observations through epistemic (ambiguity resolving) actions. %goal directed behavior.
+%
+Friston et al. \cite{Friston2010} state that actions enables to realize preferred outcomes, based on the assumption that both action and perception are trying to maximize the evidence or marginal likelihood of a generative model, as scored by variational free energy.
+% Friston \cite{Friston2010} states that by minimizing free energy is equivalent to maximizing model evidence, which is equivalent to minimizing the complexity of accurate explanations for observed outcomes.
+Following this principle, if one could directly obtain an estimation of free energy through the current observation, it would enable intrinsically motivated training of autonomous agents to gather information about their environment.
+%to resolve ambiguities by their specific modality.
+%
+Moreover, the agent would learn an epistemic goal-directed behavior, as it would only take the effort of driving to a particular vantage point, iff its sensor modality helps to resolve ambiguity.
+
+%as feature extractor with the intention of exploiting the advertised 
+%multi-modal variational Auto Encoder
+%
+We realize this approach by first downsample the raw sensor observations by means of feature extractors $f_{*}$ as shown if Fig. \ref{fig:arch}. 
+%
+Second, a multi-modal generative model is applied to retrieve a common latent embedding of the observations and to estimate the \textit{evidence lower bound} (ELBO) as a quantity of free energy.
+%
+We achieved this by deriving an objective from the joint marginal likelihood that reveals to an unsupervised training of a coherent posterior distribution between all modality permutations by means of a variational Auto Encoder (VAE).
+%
+Third, we train an agent applying a deep reinforcement learning (DRL) approach on the latent embedding of the VAE with the VAE's ELBO estimations as reward signal to perform epistemic actions wrt. its modality.
+
+%to derive an objective for a multi-modal variational auto encoder, that 
+%Furthermore, 
+%, given partial observations of the 
+%
+%by the model to derive reasonable navigation goals that minimize expected free energy \cite{friston2016} in a multi-agent active sensing setup.
+%
+%The overall goal of this work is the investigation of reinforcement approaches for distributed sensing based on latent space representations derived from multi-modal deep generative models.
+%The main objective of this contribution is to train multi-modal VAE that integrates all the information on different sensor modalities into a joint latent representation.
+%and then to generate one sensor information from the corresponding other one via this joint representation.
+%Therefore, this model can exchange multiple sensor modalities bi-directionally, for example, features from laser scanner data to images and vice versa, and can learn a shared latent space distribution between uni- and multi-modal cases.
+%Furthermore, we train a deep Q-Network that controls robots equipped with uni-modal sensors directly on the latent space with the objective of reducing uncertainty regarding detected objects. Our approach performs better than naive multi-robot exploration.
+%
+%\textbf{----------------------------------------------------}
+%The overall goal of this project is the investigation of reinforcement approaches for distributed sensing based on inverse sensor models.
+%on latent space representations derived from multi-modal deep generative models.
+%
+%The main objective of this contribution is to train a multi-modal VAE that integrates all information on different sensor modalities into a joint latent representation.
+%
+%We follow the approach of applying an unsupervised trained multi-modal VAE as feature extractor with the intention of exploiting the advertised \textit{evidence lower bound} (ELBO) by the model to derive reasonable navigation goals that minimize expected free energy \cite{friston2016} in a multi-agent active sensing setup.
+%
+%The proposed architecture, as shown in Fig. \ref{fig:arch} comprises three stages as: 1) learning to sense, 2) learning to combine, 3) learning to act.
+%
+%The goal of an actor is then, to select navigation goals in the environment by selecting sensor modalities in a manner that a perception minimizes the free energy which is equivalent to, if formulated reciprocally, the maximization of future expected reward.
+%
+%\begin{figure}[thpb]
+%	% \small
+%	\footnotesize
+%	%\input{architecture_mmvae_back_connection.pdf_tex}
+%	\input{architecture_mmvae_back_connection_decoder.pdf_tex}
+%	% \input{architecture_RL_application.pdf_tex}
+%	%\caption{Active sensing architecture of a single agent comprising three stages: 1) features are extracted from a subset of sensor modalities $f_{*}$ or from the M²VAE decoder networks; 2) a common state representation of the features is generated and mapped by the M²VAE encoders, 3) an actor network chooses the next sensor modality, such that the ELBO (i.e. quantity of free energy) is minimized.}
+%    \caption{Proposed architecture of a single agent comprising: 1) downsampling and feature extraction; 2) state and reward estimation by the M²VAE; 3) epistemic action selection of the next vantage point for its modality to minimize free energy.}
+%	\label{fig:arch}
+%\end{figure}
+%
+%\textbf{----------------------------------}
+%
+%In general, selecting actions based upon value of states only works when the states are known.
+%\textbf{--------------FRISTON START--------------------}
+%
+%In the case of ambiguous or partially observations, an uncertainty mapping between hidden states and outcomes is necessary.
+%
+%This means that acting to minimize free energy resolves ambiguity and unsurprising or preferred outcomes.
+%
+%are made 
+%\textbf{--------------FRISTON END--------------------}
+%
+%Our contribution makes use of the fields of deep neuronal networks for feature extraction, deep generative models for latent representations, and deep Q-Networks for optimal control in heterogeneous multi-agent systems in order to archive sufficient classification of objects in the environment.
+Since this contribution concentrates on the generative models as the central feature enabling our approach, we stress this part in the Sec. \ref{sec:related_work}.
+%
+Section \ref{sec:models} presents the derivation of a multi-modal VAE (M²VAE) which suits our needs to find a coherent posterior distribution.
+%
+Furthermore, we argue that the features of the M²VAE can be applied as state information as well as reward signal for a DRL approach in Sec. \ref{sec:RL}.
+%
+An evaluation wrt. to three multi-modal VAEs is done in Sec. \ref{sec:experiment} with the application to a \textit{multi-agent DRL} (MARL), ambiguity resolving, AS scenario.
+%
+Lastly, we conclude our work in Sec. \ref{sec:conclusion}.
+%\autoref{seq:RL} provides an overview of our application within RL, which is then evaluated in \autoref{seq:setup}.
+%gives the overview and application of the trained latent space to the MARL exploration task.
+
+
+\end{confidential}

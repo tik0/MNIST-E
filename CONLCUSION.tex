@@ -1,0 +1,18 @@
+\section{Conclusion}
+\label{sec:conclusion}
+%
+This work presents a novel multi-modal Variational Auto Encoder which is derived from the complete marginal joint log-likelihood.
+%
+We showed that this expression can jointly be trained on an Mixture-of-Gaussian dataset with ambiguous observations, as well as on a complex dataset derived from MNIST and fashion-MNIST.
+%
+Furthermore, we formulated requirements and characteristics for multi-modal data for sensor fusion and derived a technique to learn new datasets, namely the proposed entangled-MNIST, which suffice these requirements.
+%
+Lastly, we developed the idea of in-place sensor fusion in distributed, active sensing scenarios and formulated the requirements, by means of auto re-encoding, to VAEs.
+%
+This revealed the properties of VAEs, that they tend to denoise the observable data which leads to an attractor behavior in latent space.
+%
+However, we performed all qualitative evaluations of the latent space with the premise in mind, that a good generative model should not just generate good data but also gives a good latent representation.
+%
+This does also correlate with the quantitative behaviors, as our proposed model achieved the highest ELBO values.
+%
+Future work will concentrate on the integration of the ambiguous resolving characteristics to an epistemic-exploration scenario.

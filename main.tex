@@ -1,0 +1,137 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2019_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{comment}
+\excludecomment{confidential}
+\usepackage{amsmath, scalerel} % assumes amsmath package installed
+\usepackage{amssymb}
+\usepackage{amsopn}
+\usepackage{graphicx}
+\usepackage{multirow}
+
+\newcommand{\specialcell}[2][c]{%
+	\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
+\title{Deep Generative Models for learning Coherent Latent Representations from Multi-Modal Data}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Timo Korthals, Marc Hesse \& Ulrich Rückert\\
+Bielefeld University\\
+Cluster of Excellence Cognitive Interaction Technologies\\
+Cognitronics \& Sensor Systems\\
+Inspiration 1, 33619 Bielefeld, Germany\\
+\texttt{\{tkorthals,mhesse,rueckert\}@cit-ec.uni-bielefeld.de} \\
+\And
+J\"urgen Leitner\\
+Australian Centre for Robotic Vision\\
+Queensland University of Technology\\
+Brisbane, Australia\\
+\texttt{j.leitner@qut.edu.au} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\renewcommand{\a}{a}
+\renewcommand{\b}{b}
+\renewcommand{\c}{c}
+\newcommand{\A}{A}
+\newcommand{\B}{B}
+\newcommand{\C}{C}
+\newcommand{\texta}{\text{a}}
+\newcommand{\textb}{\text{b}}
+\newcommand{\textc}{\text{c}}
+\DeclareMathOperator\dkl{D_{KL}}
+\DeclareMathOperator\VarInfo{VI}
+\DeclareMathOperator\Info{I}
+\DeclareMathOperator\Ent{H}
+%\DeclareMathOperator\q{q}
+%\DeclareMathOperator\p{p}
+\newcommand{\p}{p}
+\newcommand{\q}{q}
+\newcommand{\elbo}{\mathcal{L}}%{L^{\text{V}}}
+\newcommand{\elboJ}{\mathcal{L}_{\text{J}}}%{L^{\text{V}}}
+\newcommand{\elboTJ}{\mathcal{L}_{\widetilde{\text{J}}}}%{L^{\text{V}}}
+\newcommand{\elboM}{\mathcal{L}_{\text{M}}}
+\newcommand{\elboMa}{\elbo_{\text{M}_\texta}}
+\newcommand{\elboMb}{\elbo_{\text{M}_\textb}}
+\newcommand{\elboMc}{\elbo_{\text{M}_\textc}}
+\newcommand{\elboTM}{\elbo_{\widetilde{\text{M}}}}
+\newcommand{\elboTMc}{\elbo_{\widetilde{\text{M}}_\textc}}
+\newcommand{\elboTMa}{\elbo_{\widetilde{\text{M}}_\texta}}
+\newcommand{\elboTMb}{\elbo_{\widetilde{\text{M}}_\textb}}
+\newcommand{\optext}[1]{\myspecialcell{\hfill\text{#1}}}
+\newcommand{\taref}[1]{\optext{\autoref{#1}}}
+\renewcommand{\(}{\mathopen{}\left(}
+\renewcommand{\)}{\right)\mathclose{}}
+\newcommand{\leftEmptyBrace}{\mathopen{}\left.}
+\newcommand{\rightEmptyBrace}{\right.\mathclose{}}
+\renewcommand{\[}{\mathopen{}\left[}
+\renewcommand{\]}{\right]\mathclose{}}
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+\DeclareMathOperator{\funf}{f}
+\DeclareMathOperator{\fung}{g}
+\DeclareMathOperator{\diffdoperator}{d}
+\newcommand{\diffd}{\diffdoperator\!}
+\DeclareMathOperator{\t2v}{t2v}
+\DeclareMathOperator{\F}{F}
+\usepackage{icomma}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+\iclrfinalcopy
+
+\maketitle
+
+\begin{abstract}
+The application of multi-modal generative models by means of a \textit{Variational Auto Encoder} (VAE) is an upcoming research topic for sensor fusion and bi-directional modality exchange.
+%
+This contribution gives insights into the learned joint latent representation and shows that expressiveness and coherence are decisive properties for multi-modal datasets.
+%
+Furthermore, we propose a multi-modal VAE derived from the full joint marginal log-likelihood that is able to learn the most meaningful representation for ambiguous observations.
+%
+Since the properties of multi-modal sensor setups are essential for our approach but hardly available, we also propose a technique to generate correlated datasets from uni-modal ones.
+
+\end{abstract}
+
+%\input{INTRODUCTION.tex}
+
+%\input{RELATED_WORK.tex}
+
+%\input{VAE_APPROACH.tex}
+
+\input{DATA_GENERATION.tex}
+
+%\input{RESULTS.tex}
+
+%\input{CONLCUSION.tex}
+
+\subsubsection*{Acknowledgments}
+
+This research was supported by 'CITEC' (EXC 277) at Bielefeld University and the Federal Ministry of Education and Research (57388272). The responsibility for the content of this publication lies with the author.
+
+%\bibliography{iclr2019_conference}
+\bibliography{root}
+\bibliographystyle{iclr2019_conference}
+
+\input{APPENDIX.tex}
+
+\end{document}

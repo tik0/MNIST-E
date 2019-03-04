@@ -1,0 +1,103 @@
+\section{RELATED WORK}
+\label{sec:related_work}
+
+
+%First, we want to give a brief review of VAEs \cite{Kingma2014} which constitute the basis of the multi-modal case. %proposed by Suzuki et al. \cite{Suzuki2017}.
+\textit{Variational auto encoder} (VAE) combine neural networks with variational inference to allow unsupervised learning of complicated distributions according to the graphical model shown in \autoref{fig:VAE} (left).
+%
+A $D_\a$-dimensional observation $\a$ is modeled in terms of a $D_z$-dimensional latent vector $z$ using a probabilistic decoder $\p_{\theta_\texta}\(z\)$ with parameters $\theta$.
+%
+%$\p_{\theta_\texta}\(z\)$ is given by a neural network which is referred to as probabilistic decoder as it provides the mean of our observation model.
+%
+%The vector $z$ can be seen as a code of the corresponding observation, which is assumed to be drawn from a standard normal distribution $z\!\sim\!p(z)\!=\!\mathcal(z; 0, \mathbf{I})$.
+%
+%The choice of this distribution is justified since it can be transformed to an arbitrary distribution given a sufficiently complex transformation $\p_{\theta_\texta}\(z\)$.
+%
+To generate the corresponding embedding $z$ from observation $\a$, a probabilistic encoder network with $\q_{\phi_\texta}\(z\)$ is being provided which parametrizes the posterior distribution from which $z$ is sampled.
+%
+The encoder and decoder, given by neural networks, are trained jointly to bring $\a$ close to an $\a'$ under the constraint that an approximate distribution needs to be close to a prior $\p\(z\)$ and hence inference is basically learned during training.
+
+The specific objective of VAEs is the maximization of the marginal distribution $\p\(\a\) = \int \p_{\theta}\(\a|z\)\p\(z\)\diffd\a$.
+Because this distribution is intractable, the model is instead trained via \textit{stochastic gradient variational Bayes} (SGVB) by maximizing the \textit{evidence lower bound} (ELBO) $\elbo$ of the marginal log-likelihood $\log\p\(\a\):=L_{\texta}$ as
+\begin{align}
+L_{\texta}\! \geq\! \elbo\! =\! \underbrace{- \dkl \( \q_\phi \( z| \a \) \| \p\( z \) \)}_\text{Regularization}
++ 
+\underbrace{\EX_{\q_\phi\( z | \a \)} \log \( \p_\theta \( \a | z \)  \)}_{\text{Reconstruction}}\text{.}
+\label{eq:reg_rec}
+\end{align}
+%The VAE model is used in settings where only a single modality $x$ is present, in order to find a latent encoding $z$ (c.f. \autoref{fig:VAE} right).
+This approach proposed by \cite{DBLP:journals/corr/KingmaW13} is used in settings where only a single modality $\a$ is present in order to find a latent encoding $z$ (c.f. \autoref{fig:VAE} (left)).
+
+%
+In the following chapters, we give a briefly comprise related work by means of multi-modal VAEs.
+%
+Further, we stress the concept of two joint multi-modal approaches to derive the later proposed  \textit{variational Auto Encoder} (VAE).
+% and the extension to multiple input modalities.
+%Further, we give a brief overview of applications where sensor data pre-processing techniques, in particular VAEs, have been exploited as feature extractors to boost deep reinforcement learning. 
+\begin{figure}
+	\footnotesize
+	\begin{center}
+		%\input{VAEs_v2.pdf_tex}
+		%\input{VAEs.pdf_tex}
+		\input{VAEs_trimodal.pdf_tex}
+	\end{center}
+	\caption{Evolution of full uni-, bi-, and tri-modal VAEs comprising all modality permutations}
+	\label{fig:VAE}
+\end{figure}
+%
+\subsection{Multi-Modal Auto Encoder}
+\label{sec:vae}
+%
+Given a set of modalities $\mathcal{M}\!=\!\left\lbrace\a,\b,\c,\ldots\right\rbrace$, multi-modal variants of \textit{Variational Auto Encoder}s (VAE) have been applied to train generative models for multi-directional reconstruction (i.e. generation of missing data) or feature extraction.
+%
+Variants are \textit{conditional VAEs} (CVAE) and conditional multi-modal autoencoders (CMMA), with the lack in bi-directional reconstruction (\cite{NIPS2015_5775,Pandey2016}).
+%
+BiVCCA by \cite{Wang2016_2} trains two VAEs together with interacting inference networks to facilitate two-way reconstruction with the lack of directly modeling the joint distribution. %, which we find empirically to improve the ability of a model to learn the data distribution.
+%
+Models, that are derived from the \textit{variation of information} (VI) with the objective to estimate the joint distribution with the capabilities of multi-directional reconstruction were recently introduced by \cite{Suzuki2017}.
+%
+\cite{Vedantam2017} introduce another objective for the bi-modal VAE, which they call the triplet ELBO (tVAE).
+%
+%First, the full multi-modal VAE is trained, after which the encoder weights are pinned to train the remaining uni-modal networks.
+%
+%Wu et al. \cite{Wu2018} propose a Product-of-Expert architecture combining the variational distribution, which has to be Gaussian, of the set of all uni-modal encoders
+%More work on multi-modal (AE) which are used as feature extractors are
+%
+Furthermore, multi-modal stacked Auto Encoders (AE) are a variant of combining the latent spaces of various AEs ( \cite{Larochelle:2007:EED:1273496.1273556,Ranzato:2006:ELS:2976456.2976599}) which can also be applied to the reconstruction of missing modalities (\cite{Ngiam2011,Cadena}).
+%
+% That means, that inputs may have zero values for one of the input modalities and original values for the other input modality, but still require the network to reconstruct both modalities.
+%
+However, while \cite{Suzuki2017} and \cite{Vedantam2017} argue that training of the full multi-modal VAE is intractable, because of the $2^{|\mathcal{M}|}\!-\!1$ modality subsets of inference networks, we show that training the full joint model estimates the most expressive latent embeddings.
+
+\subsubsection{Joint Multi-Modal Variational Auto Encoder}
+When more than one modality is available, e.g. $\a$ and $\b$ as shown in \autoref{fig:VAE} (mid.), the derivation of the ELBO $\elboJ$ for a marginal joint log-likelihood $\log\p\(\a\):=L_{\text{J}}$ is straight forward:
+\begin{align}
+&L_{\text{J}} \geq \elboJ =
+\underbrace{- \dkl \( \q_{\phi_{\texta\textb}} \( z| \a,\b \) \| \p\( z \) \)}_{\text{Regularization}}
++
+\underbrace{\EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_\texta} \( \a | z \)  \)}_{\text{Reconstruction wrt. $\a$}}
++
+\underbrace{\EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_\textb} \( \b | z \)  \)}_{\text{Reconstruction wrt. $\b$}} \label{eq:joint_reg_rec_rec}
+\end{align}
+However, it is not clear how to perform inference if the dataset consists of samples lacking from modalities (e.g. for samples $i$ and $k$: $\(a_i,\varnothing\)$ and $\(\varnothing,b_k\)$).
+\cite{Ngiam2011} propose training of a bimodal deep auto encoder using an augmented dataset with additional examples that have only a single-modality as input.
+We, therefore, name the resulting model of Eq. \ref{eq:joint_reg_rec_rec} \textit{joint multi-modal VAE-Zero} (JMVAE-Zero).
+%However, it is less clear how to apply or train the uni-modal encoders via this expression and further, how to perform inference if the dataset consists of samples lacking from modalities (e.g. for samples $i$ and $k$: $\(a_i,\varnothing\)$ and $\(\varnothing,b_k\)$).
+%
+\subsubsection{Joint Multi-Modal Variational Auto Encoder from Variation of Information}
+%However, if missing modalities are high-dimensional and complicated such as natural images, then the inferred latent variable becomes incomplete and generated samples might collapse.
+While the former approach cannot directly be applied to missing modalities, \cite{Suzuki2017} propose a \textit{joint multi-modal VAE} (JMVAE) that is trained via two uni-modal encoders and a bi-modal en-/decoder which share one objective function derived from the \textit{variation of information} (VI) of the marginal conditional log-likelihoods $\log \p\(\a|\b\)\p\(\b|\a\)=:L_{\text{M}}$ by optimizing the ELBO $\elboM$:
+\begin{align}
+&L_{\text{M}} \geq \elboM \geq \elboJ - \underbrace{\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\textb}}\( z| \b \) \)}_{\text{Unimodal PDF fitting of encoder b}} - \underbrace{\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\texta}}\( z| \a \) \)}_{\text{Unimodal PDF fitting of encoder a}}
+%\label{eq:multi_reg_rec}
+\end{align}
+%Therefore, Suzuki et al. \cite{Suzuki2017} propose a joint multi-modal VAE (JMVAE) that is trained on two uni-modal encoder and bi-modal en-/decoders which share an objective function derived from the \textit{variation of information} (VI) between $\a$ and $\b$.
+Therefore, uni-modal encoders are trained, so that their distributions $q_{\phi_{\a}}$ and $q_{\phi_{\b}}$ are close to a multi-modal encoder $q_{\phi_{\texta\textb}}$ in order to build a coherent posterior distribution.
+%
+The introduced regularization by \cite{Suzuki2017} puts learning pressure on the uni-modal encoders just by the distributions' shape, disregarding reconstruction capabilities and the prior $\p\(z\)$.
+%
+Furthermore, one can show that deriving the ELBO from the VI for a set of $\mathcal{M}$ observable modalities, always leads to an expression of the ELBO that allows only training of $\widetilde{\mathcal{M}}=\left\lbrace m | m \in \mathcal{P}\( \mathcal{M}\), |m|=|\mathcal{M}|-1 \right\rbrace$ modality combinations.
+%
+This leads to the fact that for instance in a tri-modal setup, as shown in Fig. \ref{fig:VAE} (right), one can derive three bi-modal encoders from the VI, but no uni-modal ones.
+
+

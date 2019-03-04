@@ -1,0 +1,165 @@
+\section*{APPENDIX}
+
+\subsection{Extension to three Modalities}
+\label{seq:extension_three_mod_suzuki}
+The proposed, as well as approach by \cite{Suzuki2017}, can be extended to multiple modalities $\mathcal{M}\!=\!\left\lbrace\a,\b,c\right\rbrace$.
+The conditional marginal log-likelihood of $a$ can be written as
+\begin{align}
+\log\p\( \a | \b,\c\)\!=\!\elboTMa \!+\! \dkl \( \q \( z | \mathcal{M} \) \| \p\( z| \mathcal{M} \) \)\!\geq\!\elboTMa\text{.}
+\label{eq:elbo3_conditional_geq}
+\end{align}
+%
+\subsubsection{JMVAE for three Modalities}
+%
+The VI between a set of distributions $\mathcal{M}$ can be written as $-\EX_{\p\(\mathcal{M}\)}\sum_{m\in\mathcal{M}} \log\p\(m|\mathcal{M}\setminus m\)$, which leads to an expression of maximizing the ELBO of negative VI (c.f. \cite{Suzuki2017}).
+Following this approach, the log-likelihood $L_{\text{3M}}$ can be expressed by the ELBOs, by utilizing Eq. \ref{eq:elbo3_conditional_geq}, of their conditionals and KL divergence:
+\begin{align}
+L_\text{3M} &= \log\p\( \a | \b,\c\) + \log\(\p\( \b | \a,\c\)\) + \log\(\p\( \c | \b,\c\)\) \\
+%&= \elboTMa + \elboTMb + \elboTMc + 3 \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \a,\b,\c \) \) \\
+&\geq \elboTMa + \elboTMb + \elboTMc \\
+&\geq \elboTJ -\dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \b,\c \) \) \\
+& - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \a,\c \) \) 
+\!-\!\dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \b,\c \) \) %\label{eq:multi_vae_loss}
+\label{eq:elbo3_joint_geq}
+\end{align}
+%The combined ELBO $\elbo_{\text{3M}}$ can then be rewritten as
+%\begin{align}
+%&\elbo_{\text{3M}} = \\
+%& \EX_{\q\( z | \a,\b,\c \)} \log \( \p \( \a | z \)  \) - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \b,\c \) \) \\
+%& +
+%\EX_{\q\( z | \a,\b,\c \)} \log \( \p \( \b | z \)  \) - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \a,\c \) \) \\
+%& +
+%\EX_{\q\( z | \a,\b,\c \)} \log \( \p \( \c | z \)  \) - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \a,\b \) \)\\
+%&\geq \elboTJ -\dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \b,\c \) \) \\
+%& - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \a,\c \) \) \\
+%& - \dkl \( \q \( z | \a,\b,\c \) \| \p\( z| \b,\c \) \) \label{eq:multi_vae_loss}
+%\end{align}
+with $\elboTJ$ being the joint ELBO of a joint probability $\p\(\mathcal{M}\)$ which expression is analog to Eq. \ref{eq:joint_reg_rec_rec}.
+%
+\subsubsection{M\textsuperscript{2}VAE for three Modalities}
+%
+Applying the proposed scheme to the joint log-likelihood of three modalities results in the following expression:
+%
+\begin{align}
+&L_{\text{3M\textsuperscript{2}}} \\
+%
+&=\! \nicefrac{3}{3} \log\p\( \a,\b,\c \) = \nicefrac{1}{3} \log\p\( \a,\b,\c \)^3 & \\
+%
+&=\! \nicefrac{1}{3} \log\p\( \a,\b,\c \)\p\( \a,\b,\c \)\p\( \a,\b,\c \) \\
+%
+&=\! \nicefrac{1}{3} \log\p\(\a,\b \)\p\(\b,\c \)\p\(\a,\c \)\p\( \a|\b,\c \)\p\( \b|\a,\c \)\p\( \c|\a,\b \) \\
+%
+&=\! \nicefrac{1}{3} \(\log\(\p\(\a,\b \) \)+\log\( \p\(\b,\c \) \)+\log\( \p\(\a,\c \) \) \rightEmptyBrace \\
+&\phantom{=}\! \leftEmptyBrace +\log \p\( \a|\b,\c \) +\log \p\( \b|\a,\c \)+\log \p\( \c|\a,\b \)\) \\
+%
+&=\! \nicefrac{1}{3} \(\nicefrac{2}{2}\(\log\p\(\a,\b \) +\log \p\(\b,\c \)+\log\p\(\a,\c \) \)\!+\!L_{\text{3M}}\) \\
+&=\! \nicefrac{1}{6}\(\log\p\(\a,\b \)^2 +\log \p\(\b,\c \)^2 +\log \p\(\a,\c \)^2 \)\! +\! \nicefrac{L_{\text{3M}}}{3} \\
+&=\! \nicefrac{1}{6}\(L_{\text{M\textsuperscript{2}}_{\texta\textb}} +L_{\text{M\textsuperscript{2}}_{\textb\textc}} +L_{\text{M\textsuperscript{2}}_{\texta\textc}} \) + \nicefrac{1}{3}L_{\text{3M}}
+\end{align}
+%
+From here on, one can substitute all log-likelihoods given the expressions in Sec. \ref{sec:models} and \ref{sec:appendix}, to derive the ELBO $\elbo_{\text{3M\textsuperscript{2}}}$.
+%
+
+\subsubsection{M\textsuperscript{2}VAE Derivation}
+\label{sec:proof_mmvae}
+
+%For the sake of brevity, we shorten the marginal joint log-likelihood of the set $\mathcal{M}$ of variables as $L_{\mathcal{M}}:=\log \p\(\mathcal{M}\)$
+%
+%\begin{align}
+%&L_{\text{M\textsuperscript{2}}_{\mathcal{M}}} = \nicefrac{|\mathcal{M}|}{|\mathcal{M}|} L_{\mathcal{M}}
+%%
+%=\! \nicefrac{1}{|\mathcal{M}|} \sum_{m\in\mathcal{M}} L_{m | \mathcal{M} \setminus m } + L_{\mathcal{M} \setminus m } =\! \nicefrac{1}{|\mathcal{M}|} \( L_{\text{M}_{\mathcal{M}}} + \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} L_{\text{M\textsuperscript{2}}_{\widetilde{m}}} \)
+%\end{align}
+%
+\begin{align}
+L_{\text{M\textsuperscript{2}}_{\mathcal{M}}} &= \log \p\(\mathcal{M} \) \overset{\text{mul. 1}}{=}
+%
+\nicefrac{|\mathcal{M}|}{|\mathcal{M}|} \log \p\(\mathcal{M} \)
+%
+\overset{\text{log. mul.}}{=} 
+\nicefrac{1}{|\mathcal{M}|} \log \p\(\mathcal{M} \)^{|\mathcal{M}|}
+%
+\\
+%
+&\overset{\text{Bayes}}{=} 
+\nicefrac{1}{|\mathcal{M}|} \sum_{m\in\mathcal{M}} \log \p\(\mathcal{M} \setminus m  \) \p\(m | \mathcal{M} \setminus m  \)
+%
+\\
+&\overset{\text{log. add}}{=} 
+\nicefrac{1}{|\mathcal{M}|} \sum_{m\in\mathcal{M}} \log \p\(\mathcal{M} \setminus m  \) + \log \p\(m | \mathcal{M} \setminus m  \)
+\end{align}
+%
+The expression $\sum_{m\in\mathcal{M}} \log \p\(m | \mathcal{M} \setminus m  \)$ is the general form of the marginal log-likelihood for the \textit{variation of information} (VI), as introduced by \cite{Suzuki2017} for the JMVAE, for any set $\mathcal{M}$.
+%
+Thus, it can be directly substituted with $L_{\text{M}_{\mathcal{M}}}$.
+%
+The expression $\sum_{m\in\mathcal{M}} \log \p\(\mathcal{M} \setminus m  \)$ is the combination of all joint log-likelihoods of the subsets of $\mathcal{M}$ which have one less element.
+%
+Therefore, this term can be rewritten as 
+\begin{align}
+\sum_{m\in\mathcal{M}} \log \p\(\mathcal{M} \setminus m  \) = \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \log \p\( \widetilde{m} \)
+\end{align}
+with $\widetilde{\mathcal{M}}=\left\lbrace m | m \in \mathcal{P}\( \mathcal{M}\), |m|=|\mathcal{M}|-1 \right\rbrace$
+%
+Finally, $\log \p\( \widetilde{m} \)$ can be substituted by $L_{\text{M\textsuperscript{2}}_{\widetilde{m}}} $ without loss of generality.
+%
+However, it is worth noticing that substitution stops at the end of recursion and therefore, all final expressions $\log \p\( \widetilde{m} \)\ \forall \ |\widetilde{m}|\equiv1$ remain. $ \square $
+%\begin{align}
+%%
+%%
+%= \nicefrac{1}{|\mathcal{M}|} \sum_{|\mathcal{M}|}\log \p\(\mathcal{M} \)
+%%
+%= \nicefrac{1}{|\mathcal{M}|} \sum_{|\mathcal{M}|}\log \p\(\mathcal{M} \)
+%%
+%\\
+%&= \nicefrac{1}{|\mathcal{M}|} \sum_{m\in\mathcal{M}} L_{m | \mathcal{M} \setminus m } + L_{\mathcal{M} \setminus m } =\! \nicefrac{1}{|\mathcal{M}|} \( L_{\text{M}_{\mathcal{M}}} + \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} L_{\text{M\textsuperscript{2}}_{\widetilde{m}}} \)
+%\end{align}
+\subsubsection{Network Architecture}
+\label{sec:jmvae_e_mnist_setup}
+
+We designed all VAEs such that the latent space prior is given by a Gaussian with unit variance.
+%
+Furthermore, all VAEs sample from a Gaussian variational distribution that is parametrized by the encoder networks.
+%
+A summary of all architectures used in this paper can be seen in Tbl. \ref{tab:architectures}.
+%
+The reconstruction loss for calculating the evidence lower bound was performed by \textit{binary cross-entropy} (BCE) for the e-MNIST and \textit{root-mean-squared error} (RMS) for the MoG experiment.
+%
+\begin{table}[h]
+	\caption{Various VAE architectures and optimizers for the e-MNIST and MoG experiments. um/mm stand for uni- and multi-modal while fc refers to fully-connected layers.}
+	\label{tab:architectures}
+	\centering
+	\begin{tabular}{llllc}
+		\textbf{Issue} & \textbf{VAE} & \textbf{Optimizer} &  & \textbf{VAE architecture} \\ \hline
+        \multirow{2}{*}{e-MNIST}        & \multirow{2}{*}{JMVAE-Z.} & \multirow{2}{*}{adam} & encoder & fc 2x784-2x128-2x64-concat-64-2 (ReLU) \\
+		 &   &  & decoder & fc 2x64-2x128-2x786 (tanh) \\ \hline
+		        &            &      & um enc. & fc 784-128-64-2 (ReLU) \\
+		e-MNIST & tVAE       & adam & mm enc. & fc 2x784-2x128-2x64-concat-64-2 (ReLU) \\
+		        &            &      & decoder & fc 2x64-2x128-2x786 (tanh) \\ \hline
+		        &            &      & um enc. & fc 784-128-64-2 (ReLU) \\
+		e-MNIST & M\textsuperscript{2}VAE & adam & mm enc. & fc 2x784-2x128-2x64-concat-64-2 (ReLU) \\
+		        &            &      & decoder & fc 2x64-2x128-2x786 (tanh) \\ \hline
+		\multirow{2}{*}{MoG} & \multirow{2}{*}{JMVAE-Z.} & \multirow{2}{*}{rmsprop} & encoder & fc 2x2-2x128-concat-64-2 (ReLU) \\
+		    &            &         & decoder & fc 2x128-2x2 (tanh) \\ \hline
+		    &            &         & um enc. & fc 2x2-2x128-2x2 (ReLU) \\
+		MoG & tVAE       & rmsprop & mm enc. & fc 2x2-2x128-concat-64-2 (ReLU) \\
+		    &            &         & decoder & fc 2x128-2x2 (tanh) \\ \hline
+	  	    &            &         & um enc. & fc 2-128-2 (ReLU) \\
+		MoG & M\textsuperscript{2}VAE & rmsprop & mm enc. & fc 2x2-2x128-concat-64-2 (ReLU) \\
+		    &            &         & decoder & fc 2x128-2x2 (tanh) \\ 
+	\end{tabular}
+\end{table}
+
+Furthermore, the CVAE for training the e-MNIST dataset is designed as depicted in Tbl. \ref{tab:architectures_emnist}.
+
+\begin{table}[h]
+	\caption{CVAE architecture for each dataset MNIST and fashion-MNIST. The label as one-hot-vector is concatenated after the convolution layers and fed into the fully-connected (fc) layers. For convolutional architectures the numbers in parenthesis indicate strides, while padding is always \textit{same}.}
+	\label{tab:architectures_emnist}
+	\centering
+	\begin{tabular}{lc}
+		        & \textbf{CVAE architecture} \\ \hline
+		encoder & conv 1x2x2-64x2x2 (2)-64x3x3-64x3x3-concat label C-fc 128-2\\
+		decoder & concat label C-fc 128-deconv reverse of encoder (ReLU)
+	\end{tabular}
+\end{table}
+

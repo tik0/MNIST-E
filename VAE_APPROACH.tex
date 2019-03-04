@@ -1,0 +1,149 @@
+\section{Multi-Modal Variational Auto Encoder Approach}
+\label{sec:models}
+\label{sec:wgm}
+%
+While the objective of \cite{Wang2016_2}, \cite{Ngiam2011}, \cite{Suzuki2017}, and \cite{Vedantam2017} is to exchange modalities bi-directionally (e.g. $\a\rightarrow\b'$), our primary concern is twofold:
+%
+First, find a meaningful posterior distribution where the sampled statistics of an encoder network allows inference about further actions.
+%
+Second, find an expression to jointly train all $2^{|\mathcal{M}|}\!-\!1$ permutations of modality encoders.
+
+%
+By successively applying logarithm and Bayes rules, we derive the ELBO for the multi-modal VAE (M\textsuperscript{2}VAE) as follows:
+%
+First, given the independent set of observable modalities $\mathcal{M}=\lbrace\a,\b,\c,\ldots\rbrace$, its marginal log-likelihood $\log \p\(\mathcal{M}\)=:L_{\text{M\textsuperscript{2}}}$ is multiplied by the cardinality of the set as the neutral element $1=\nicefrac{|\mathcal{M}|}{|\mathcal{M}|}$.
+%
+Second, applying logarithm multiplication rule, the nominator is written as the argument's exponent.
+%
+Third, Bayes rule is applied to each term wrt. the remaining observable modalities to derive their conditionals.
+%
+Further, we bootstrap the derivation technique in a bi- and tri-modal (c.f. tri-modal case in Sec. \ref{seq:extension_three_mod_suzuki}) case to illustrate the advantages.
+%
+By excessively applying the scheme until convergence of the mathematical expression, it leads for a bi-modal set $\mathcal{M}=\lbrace\a,\b\rbrace$ to the following result:
+\begin{align}
+L_{\text{M\textsuperscript{2}}} &= \nicefrac{2}{2}\log\p\( \a,\b\) = \nicefrac{1}{2}\log\p\( \a,\b\)^2 = \nicefrac{1}{2}\log\p\( \a,\b\)\p\( \a,\b\) = \nicefrac{1}{2}\log\p\( \b \)\p\( \a|\b\)\p\( \b|\a\)\p\( \a \) \\
+              &= \nicefrac{1}{2}\( \log\p\( \a \) +  \log\p\( \b|\a\) + \log\p\( \a|\b\) + \log\p\( \b \)  \) = \nicefrac{1}{2}\( L_{\texta} +  L_{\text{M}} + L_{\textb}  \)
+%              &\geq \nicefrac{1}{2}\(\elbo_{\text{a}} + \elboMa + \elboMb + \elbo_{\text{b}}\) \\
+%              &\geq \nicefrac{1}{2}\(\elbo_{\text{a}} + \elboM + \elbo_{\text{b}}\)
+\end{align}
+%
+
+This term can be written as inequality wrt. each ELBO of the marginals $L_{\texta}$, $L_{\textb}$ and conditionals $L_{\text{M}}$:
+\begin{align}
+&2 L_{\text{M\textsuperscript{2}}} \geq 2 \elbo_{\text{M\textsuperscript{2}}} = \elbo_{\text{a}} + \elbo_{\text{b}} + \elboM = \label{eq:m2_elbo_sum}\\
+&- \beta_{\texta} \dkl \( \q_{\phi_{\texta}} \( z| \a \) \| \p\( z \) \) + \EX_{\q_{\phi_{\texta}}\( z | \a \)} \log \( \p_{\theta_{\texta}} \( \a | z \)  \) \label{eq:m2_elbo_a}\\
+& - \beta_{\textb} \dkl \( \q_{\phi_{\textb}} \( z| \b \) \| \p\( z \) \) + \EX_{\q_{\phi_{b}}\( z | \b \)} \log \( \p_{\theta_{\textb}} \( \b | z \)  \) \label{eq:m2_elbo_b}\\
+&+ \EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_{\texta}} \( \a | z \)  \) + \EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_{\textb}} \( \b | z \)  \) - \beta_{\texta\textb}\dkl \( \q_{\phi_{\texta\textb}} \( z| \a,\b \) \| \p\( z \) \) \label{eq:m2_elbo_jmvae}\\
+& - \alpha\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\texta}}\( z| \a \) \) - \alpha\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\textb}}\( z| \b \) \) \label{eq:m2_elbo_jmvae_mutual_ab}
+\text{.}
+\end{align}
+%
+%\begin{align}
+%&2 L_{\text{M\textsuperscript{2}}} \geq 2 \elbo_{\text{M\textsuperscript{2}}} = \elbo_{\text{a}} + \elbo_{\text{b}} + \elboM = \label{eq:m2_elbo_sum}\\
+%&- \beta_{\texta} \dkl \( \q_{\phi_{\texta}} \( z| \a \) \| \p\( z \) \) + \EX_{\q_{\phi_{\texta}}\( z | \a \)} \log \( \p_{\theta_{\texta}} \( \a | z \)  \) \label{eq:m2_elbo_a}\\
+%& - \beta_{\textb} \dkl \( \q_{\phi_{\textb}} \( z| \b \) \| \p\( z \) \) + \EX_{\q_{\phi_{b}}\( z | \b \)} \log \( \p_{\theta_{\textb}} \( \b | z \)  \) \label{eq:m2_elbo_b}\\
+%&+ \EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_{\texta}} \( \a | z \)  \) + \EX_{\q_{\phi_{\texta\textb}}\( z | \a,\b \)} \log \( \p_{\theta_{\textb}} \( \b | z \)  \) \label{eq:m2_elbo_jmvae_rec}\\
+%& - \beta_{\texta\textb}\dkl \( \q_{\phi_{\texta\textb}} \( z| \a,\b \) \| \p\( z \) \) \label{eq:m2_elbo_jmvae_dkl}\\
+%& - \alpha\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\texta}}\( z| \a \) \) \label{eq:m2_elbo_jmvae_mutual_a}\\
+%& - \alpha\dkl \( \q_{\phi_{\texta\textb}} \( z | \a,\b \) \| \q_{\phi_{\textb}}\( z| \b \) \) \label{eq:m2_elbo_jmvae_mutual_b}
+%\text{.}
+%\end{align}
+%
+\autoref{eq:m2_elbo_sum} is substituted by all formerly derived ELBO expressions lead to the combination of the uni-modal VAEs wrt. $\texta$ and $\textb$ (c.f. Eq. \ref{eq:m2_elbo_a} to \ref{eq:m2_elbo_b}) and the JMVAE comprising the VAE wrt. the joint modality $\texta\textb$ (c.f. Eq. \ref{eq:m2_elbo_jmvae}) and mutual latent space (c.f. Eq. \ref{eq:m2_elbo_jmvae_mutual_ab}). 
+%
+\autoref{eq:m2_elbo_a} and \ref{eq:m2_elbo_b} have the effect that their regularizers care about the uni-modal distribution to deviate not too much from the common prior while their reconstruction term shapes the underlying embedding of the mutual latent space.
+%
+We further apply the concept of $\beta$-VAE (\cite{Higgins2016,Higgins2017_2,Burgess2018}) to the regularizers via $\beta_{*}$ and adopt the factor $\alpha$ from \cite{Suzuki2017} for the mutual regularizer.
+%
+However, while $\beta$-VAE have the property to disentangle the latent space, our main concern is the balance between the input and the latent space using a constant normalized factor $\beta_{\text{norm}}=\beta_{*} \nicefrac{D_{*}}{D_{z}}$.
+% \approx 10^{-2} \ldots 10^{-3}
+
+If the derivation, which we leave out for the sake of brevity, is applied to the log-likelihood $L_{\text{M\textsuperscript{2}}_{\mathcal{M}}}$ of a set $\mathcal{M}$, one can show that it results into a recursive form consisting of JMVAEs' and M\textsuperscript{2}VAEs' log-likelihood terms
+%\begin{align}
+%L_{\text{M\textsuperscript{2}}_{\mathcal{M}}} &= \frac{1}{\(|\mathcal{M}|^2 -|\mathcal{M}|\)} \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} L_{\text{M\textsuperscript{2}}_{\widetilde{m}}} + \frac{1}{|\mathcal{M}|} L_{\text{M}_\mathcal{M}}\label{eq:log_expression_induction}\\
+%%L_{_{|\mathcal{M}|}\text{M\textsuperscript{2}}_{\mathcal{M}}} = \frac{1}{\(|\mathcal{M}|^2 -|\mathcal{M}|\)} \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \! L_{_{|\widetilde{m}|}\text{M\textsuperscript{2}}} + \frac{1}{|\mathcal{M}|} L_{_{|\mathcal{M}|}\text{M}_\mathcal{M}}
+%&\geq \frac{1}{\(|\mathcal{M}|^2 -|\mathcal{M}|\)} \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \elbo_{\text{M\textsuperscript{2}}_{\widetilde{m}}} + \frac{1}{|\mathcal{M}|} \elbo_{\text{M}_\mathcal{M}} \label{eq:log_expression} \\
+%&=: \elbo_{\text{M\textsuperscript{2}}_{\mathcal{M}}}\text{.}
+%\end{align}
+%\begin{align}
+%L_{\text{M\textsuperscript{2}}_{\mathcal{M}}} &= \frac{1}{|\mathcal{M}|} \( L_{\text{M}_{\mathcal{M}}} + \frac{1}{\(|\mathcal{M}| - 1\)}  \( \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} L_{\text{M}_{\widetilde{m}}} + 2\sum_{\widetilde{\widetilde{m}}\in\widetilde{\widetilde{\mathcal{M}}}} L_{\text{M\textsuperscript{2}}_{\widetilde{\widetilde{m}}}} \)\) &\label{eq:log_expression_induction}\\
+%%
+%&\geq \frac{1}{|\mathcal{M}|} \( \elbo_{\text{M}_{\mathcal{M}}} + \frac{1}{\(|\mathcal{M}| - 1\)}  \( \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \elbo_{\text{M}_{\widetilde{m}}} + 2\sum_{\widetilde{\widetilde{m}}\in\widetilde{\widetilde{\mathcal{M}}}} \elbo_{\text{M\textsuperscript{2}}_{\widetilde{\widetilde{m}}}} \)\)
+%%&\geq \frac{1}{\(|\mathcal{M}|^2 -|\mathcal{M}|\)} \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \elbo_{\text{M\textsuperscript{2}}_{\widetilde{m}}} + \frac{1}{|\mathcal{M}|} \elbo_{\text{M}_\mathcal{M}} \label{eq:log_expression} \\
+%&=: \elbo_{\text{M\textsuperscript{2}}_{\mathcal{M}}}\text{.}
+%\end{align}
+%
+\begin{align}
+L_{\text{M\textsuperscript{2}}_{\mathcal{M}}} = \frac{1}{|\mathcal{M}|} \( L_{\text{M}_{\mathcal{M}}} + \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} L_{\text{M\textsuperscript{2}}_{\widetilde{m}}} \)
+%
+\geq \frac{1}{|\mathcal{M}|} \( \elbo_{\text{M}_{\mathcal{M}}} + \sum_{\widetilde{m}\in\widetilde{\mathcal{M}}} \elbo_{\text{M\textsuperscript{2}}_{\widetilde{m}}} \)
+%
+=: \elbo_{\text{M\textsuperscript{2}}_{\mathcal{M}}}\text{.} \label{eq:log_expression_induction}
+\end{align}
+
+
+%While Eq. \ref{eq:log_expression_induction} can be proven via induction, which we leave out for the sake of brevity.
+%
+%with $\widetilde{\widetilde{\mathcal{M}}}=\left\lbrace m | m \in \mathcal{P}\( \mathcal{M}\), |m|=|\mathcal{M}|-2 \right\rbrace$.
+%
+While the derivation of Eq. \ref{eq:log_expression_induction} is given in Sec \ref{sec:proof_mmvae}, the properties are as follows:
+\begin{itemize}
+	\item the M\textsuperscript{2}VAE consist out of $2^{|\mathcal{M}|}\!-\!1$ encoders and $|\mathcal{M}|$ decoders comprising all modality combinations
+	%(we therefore refer M\textsuperscript{2}VAE to be named \textit{wide generative model} (WGM))
+	\item while it also allows the bi-directional exchange of modalities, it further allows the setup of arbitrary modality combinations having $1$ to $|\mathcal{M}|$ modalities
+	\item subsets of minor cardinality are weighted less and have a therefore minor impact in shaping the overall posterior distribution (vice versa, the major subsets dominate the shaping and the minor sets adapt to it)
+	\item all encoder/decoder networks can jointly be trained using SGVB
+\end{itemize}
+%It consist out of $2^{|\mathcal{M}|}-1$ encoders and $|\mathcal{M}|$ decoders comprising all modality combinations;
+%while it also allows the bi-directional exchange of modalities, it further allows the setup of arbitrary modality combinations having $1$ to $|\mathcal{M}|$ modalities; 
+%subsets of minor cardinality are weighted less and have therefore minor impact in shaping the overall posterior distribution (vice versa, the major subsets dominate the shaping and the minor sets adapt to it).
+
+
+%to control the learning pressure 
+
+%and adopt the 
+%The expression trains all encoder and decoder networks jointly to maximize
+
+
+
+%With the JMVAE, we can extract joint latent features by sampling from the joint encoder $q_{\phi}\(z|\a,\b\)$ at testing time.
+
+
+%While the objective of \cite{Suzuki2017} is to exchange modalities bi-directionally ($\a\rightarrow\b'$ and $\b\rightarrow\a'$), our primary concern is to find a meaningful posterior distribution and hence, we analyze their approach with a view of using all statistics provided by the encoder network.
+
+
+\begin{confidential}
+Writing as a Lagrangian we obtain the familiar variational free energy objective function shown in Eq. 3 (19, 26), where $\beta$ is the inverse temperature or regularisation coefficient
+
+
+While learning wrt. the free energy principle is the minimization of surprise we argue that active-sensing aims to find an action with maximum information gain to minimizes future surprises and hence, the number of further necessery actions.
+
+An increase of complexity will always lead to a decrease of free energy iff the same external state is respected.
+
+the increase of accuracy.
+
+So the objective becomes to match the internal states of representation to the external ones by actively choosing sensor modalities that choose.
+
+We extend the free energy term to posses multiple modalities for one single external state.
+
+This is exactly what Bayes inference does when maximizing the evidence lower bound during training: i.e. for the sake of increasing the complexity of latent representation, higher accuracy is archived.
+That is analoug of minimizing the free energy, and therefore future surprises, through sensing.
+
+Test of JMVAE
+
+
+
+We encode the numbers 1,7,8 into RGB channel and perceive the 
+image with our two eyes, while one eye ($a$) is trichromatic (able to distinguish all three color channel) and the other one ($b$) is dichromatic (not able to distinguish between red and blue).
+We now try to find an embedding using JMVAE which will exclusively shape the latent space by the joint reconstruction loss resulting in
+p(z|x,y): 1111111111777777777788888888
+xy: decides between 1,7,8
+While blinking blinking with just one eye, the JMVAE only tries to match the latent space distribution onto 7, and the pair 1,8, resulting into the following reconstruction:
+p(z|x,y): 7777777777777777777777777777
+
+On the other hand, the M\textsuperscript{2}VAE shapes the latent space also via the uni-modal reconstruction loss, resulting into
+p(z|x,y): 7777777777888888881111111111
+p(z|x,y): 7777777777818181818181818181
+
+
+\end{confidential}

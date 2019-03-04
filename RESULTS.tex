@@ -1,0 +1,446 @@
+\section{Experiments}
+\label{sec:experiment}
+%
+We apply the datasets explained in Sec. \ref{sec:data_generation} to test and depict the capabilities of the M\textsuperscript{2}VAE.
+%
+First, we investigate the MoG data comprehensively.
+%
+Second, we evaluate the ELBO of various approaches to the e-MNIST dataset.
+%
+The VAEs are compared qualitatively, by visualizing the latent space, and quantitatively by performing lower bound tests $\elbo_{\widetilde{\mathcal{M}}}$ for every subset $\widetilde{\mathcal{M}}\!\subseteq\!\mathcal{M}$ wrt. to the decoding of all modalities $\p_{\theta_{\mathcal{M}}}$:
+\begin{align}
+%\elbo_{m} = \EX_{q_{\phi_{m}\(z|m\)}}\log\frac{p_{\theta_{m}}\(m|z\)\p\(z\)}{\q_{\phi_{m}}\(z|m\)}\\
+%\elbo_{\mathcal{M}} = \EX_{q_{\phi_{\mathcal{M}}\(z|\mathcal{M}\)}}\log\frac{p_{\theta_{\mathcal{M}}}\(\mathcal{M}|z\)\p\(z\)}{\q_{\phi_{\mathcal{M}}}\(z|\mathcal{M}\)}
+\elbo_{\widetilde{\mathcal{M}}} = \EX_{q_{\phi_{\widetilde{\mathcal{M}}}\(z|{\widetilde{\mathcal{M}}}\)}}\log\frac{p_{\theta_{\mathcal{M}}}\(\mathcal{M}|z\)\p\(z\)}{\q_{\phi_{{\widetilde{\mathcal{M}}}}}\(z|{\widetilde{\mathcal{M}}}\)}
+\label{eq:test_elbo}
+\end{align}
+with $p\(z\)=\mathcal{N}\(z;\mathbf{0},\mathbf{I}\)$.
+%
+All VAE architectures can be found in Sec. \ref{sec:jmvae_e_mnist_setup}.
+%
+%
+%\subsection{M\textsuperscript{2}VAE Evaluation}
+%
+%We perform lower bound tests $\elbo_{\widetilde{\mathcal{M}}}$ for every subset $\widetilde{\mathcal{M}}\!\subseteq\!\mathcal{M}$ wrt. to the decoding of all modalities $\p_{\theta_{\mathcal{M}}}$ to estimate the optimal parameter set $\(\beta_{*},\alpha\)$ of the M\textsuperscript{2}VAE:
+%\begin{align}
+%\elbo_{m} = \EX_{q_{\phi_{m}\(z|m\)}}\log\frac{p_{\theta_{m}}\(m|z\)\p\(z\)}{\q_{\phi_{m}}\(z|m\)}\\
+%\elbo_{\mathcal{M}} = \EX_{q_{\phi_{\mathcal{M}}\(z|\mathcal{M}\)}}\log\frac{p_{\theta_{\mathcal{M}}}\(\mathcal{M}|z\)\p\(z\)}{\q_{\phi_{\mathcal{M}}}\(z|\mathcal{M}\)}
+%\elbo_{\widetilde{\mathcal{M}}} = \EX_{q_{\phi_{\widetilde{\mathcal{M}}}\(z|{\widetilde{\mathcal{M}}}\)}}\log\frac{p_{\theta_{\mathcal{M}}}\(\mathcal{M}|z\)\p\(z\)}{\q_{\phi_{{\widetilde{\mathcal{M}}}}}\(z|{\widetilde{\mathcal{M}}}\)}
+%\end{align}
+%with $p\(z\)=\mathcal{N}\(z;\mathbf{0},\mathbf{I}\)$.
+%
+\subsection{MoG-Experiment}
+\label{sec:experiment_mog}
+%
+We evaluate the latent space with the premise in mind, that a good generative model should not just generate good data but also gives a good latent representation $z$.
+%
+\subsubsection{Parametrization}
+\begin{figure}
+    \def\svgwidth{\textwidth}
+	%\tiny
+%	\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input.pdf}
+	\input{MOoG_MMVAE_setup-0b1000_input_v3.pdf_tex}
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input_v2.pdf}
+	%\small
+	%\input{MOoG_MMVAE_setup-0b1000_input_v3.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{Latent space embeddings of the bi-modal MoG dataset by the three encoder networks of the M\textsuperscript{2}VAE.
+	%
+	Classes and ELBO colorization is depicted for various parameter settings of $\beta_{*}$ and $\alpha$.}
+	\label{fig:experiment_mog}
+\end{figure}
+%
+%
+We first investigate the impact of the parameter set $\(\beta_{*}, \alpha\)$ on the M\textsuperscript{2}VAE to find a latent space representation, which suits our needs to learn actions from it.
+
+%
+As the $\alpha$ parameter controls the mutual connection of all encoders in latent space, we found that a direct connection (i.e. $\alpha = 1.$) puts too much learning pressure on matching the mutual latent distributions between uni- and multi-modal encoders.
+%
+Thus, classes which should be separated in the multi-modal latent space collapse to the mean distributions of the uni-modal encoders.
+%
+For $\alpha\!\lessapprox\!10^{-2}$, the encoders are able to find an expressive latent space distribution by means of separable collapsed classes of uni-modal encoders, and expanded classes of multi-modal around it (c.f. Fig. \ref{fig:experiment_mog} top/left).
+
+By the findings of \cite{Higgins2017}, high $\beta$ values result in highly entangled factors in latent space whereas small normalized $\beta_\text{norm}\!\lessapprox\!10^{-2}$ show pretty robust disentanglement in all their test cases.
+%
+The impact of $\beta$ shows similar behavior on the M\textsuperscript{2}VAE and thus, we chose small $\beta$ values of $\beta_\text{norm}\!=\!10^{-2}$ to relax the learning pressure caused by the prior.
+%
+While the over optimization wrt. to the prior leads to a fuzzy generation of data $\p\(\mathcal{M} | z \)$ and collapse in latent space, high relaxation ($\beta_\text{norm}\!\ll\!10^{-3}$) causes loss of expressiveness between uni- and multi-modal encoding of a single class by means of the difference in the ELBO.
+%
+
+%
+%However, just by evaluating the ELBO and choosing the parameter set with the lowest average lower bound, we were able to find a working model with the desired behaviors for the reward signal for the \textbf{action stage (should be renamed)}.
+%
+
+It is worth noticing, that diverging $\beta$ parameters between multi- and uni-modal regularization (e.g. $\beta_{\texta\textb} \ll \beta_{\texta}$ or vice versa) results in lower ELBOs, but for the sake of expressiveness of latent embedding and the ELBO between encoders' embeddings.
+%
+We argue that learning pressure should be applied equally to all encoders so that they experience a similar learning impact.
+
+Another observation results from the fact, that the reconstruction loss of the M\textsuperscript{2}VAE's objective causes learning of mean representatives of classes in the observation space.
+This causes the artifact, that if for instance three classes exist in the output space, where one represents the overall mean, and an uni-modal encoder only sees the collapse of classes to that particular mean value, the latent encoding of this uni-modal encoder will collapse to the same mean as well.
+%
+However, while it is not longer separable (not even non-linearly) in latent space by its mean value, the ELBO for the observation drives up and gives, therefore, evidence about the embedding quality.
+%
+This insight might be fruitful in terms of epistemic (ambiguity-resolving) tasks, where for instance an unsupervised reinforcement learning approach could use the ELBO as a signal to learn epistemic exploration.
+%a later for later Thus, this could if a later action stage wants to learn proper actions from the latent embedding, it needs the embeddings as well es the observation's ELBO.
+%
+%An important notice is, that the necessary ELBO can be omitted if the input space is factorized, which causes linear separable latent space embeddings between uni- and multi-modal embeddings.
+%
+
+\subsubsection{Comparision}
+%
+%\begin{figure}[h]
+%	\def\svgwidth{\textwidth}
+%	\tiny
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input_v2.pdf}
+	%\small
+%	\input{MOoG_MMVAE_setup-0b1000_input_v4.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+%	\caption{Bi-modal latent space embeddings by the three multi-modal VAEs JMVAE-Zero (top/left), tVAE (bot./left), and M\textsuperscript{2}VAE (top/right). The bi-modal input signal are an arrangement of MoG distributions with ambiguities wrt. their mean values. The ELBO is estimated by Eq. \ref{eq:test_elbo} and is depicted qualitatively, as it can only be compared between encoders of the same approach.}
+%	\label{fig:experiment_mog_2}
+%\end{figure}
+%
+\begin{figure}[h]
+	\def\svgwidth{\textwidth}
+	\tiny
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input_v2.pdf}
+	%\small
+	\input{MOoG_MMVAE_setup-0b1000_input_v5.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{Bi-modal latent space embeddings by the three multi-modal VAEs JMVAE-Zero (left), tVAE (mid.), and M\textsuperscript{2}VAE (right). The bi-modal input signals are an arrangement of the MoG distributions with ambiguities wrt. their mean values. The ELBO (colorization wrt. Figure \ref{fig:experiment_mog}) is estimated by Eq. \ref{eq:test_elbo} and is depicted qualitatively, as it can only be compared between encoders of the same approach.}
+	\label{fig:experiment_mog_2}
+\end{figure}
+%
+%
+%
+Comparing the three approaches to estimate the multi-modal marginal log-likelihood by maximizing the ELBO, one can see from Fig. \ref{fig:experiment_mog_2} that the most coherent latent space distribution was learned by the proposed M\textsuperscript{2}VAE.
+
+While the JMVAE-Zero learned similarities between $\q_{\phi_{\texta\textb}}$ and $\q_{\phi_{\texta}}$, it learned a complete new embedding for the classes $(1,2)$ with $\q_{\phi_{\textb}}$ (denoted by $(\$)$).
+%
+Furthermore, the ELBO per embedding allows no conclusion between the embeddings of the various encoders.
+%
+
+The tVAE founds a much more coherent embedding between the encoders.
+%
+This was achieved by the fact, that first the full multi-modal VAE, consisting out of the encoder $\q_{\phi_{\texta\textb}}$ and two decoder $\p_{\theta_{\texta}}$ and $\p_{\theta_{\textb}}$, was trained.
+%
+Second, the decoder weights are pinned to train the remaining uni-modal networks which enforces coherence.
+%
+However, the ELBO per embedding also does not allow any direct conclusion between the embeddings of the various encoders. 
+%
+This is depicted by $(\sim)$, where the multi-modal encoder $\q_{\phi_{\texta\textb}}$ produces embeddings of higher energy than these of the uni-modal ones.
+%
+This can happen as there is no regularizer which enforces the variational distribution of the encoders to match each other and thus, the KL-divergence may differ between the models for similar encodings.
+
+The M\textsuperscript{2}VAE, on the other hand, enforces the encoders inherently to approximate the same posterior distribution which can be seen by the strong coherence between all embeddings.
+%
+Furthermore, classes which are separated in the multi-modal latent embedding collapse to the mean values in the uni-modal ones as denoted by $(+)$ and $(-)$.
+%
+This behavior is also rendered by the ELBO.
+%
+As the M\textsuperscript{2}VAE makes ambiguous embeddings, the reconstruction loss drives up (c.f. $(*)$ and $(/)$).
+%
+
+The embeddings also show an interesting fact about the class $(0)$:
+%
+As this class is only ambiguously detectable in the uni-modal case, all VAEs learn a linear separable and therefore unambiguous embedding if both modalities make an observation of this class (denoted by $(-)$ for the M\textsuperscript{2}VAE).
+
+%
+%For $\alpha\!\lessapprox\!10^{-2}$, the encoders are able find an expressive latent space distributions by means of separable collapsed classes of uni-modal encoders, and expanded classes of multi-modal around it (c.f. Fig. \ref{fig:experiment_mog} top/left).
+
+
+%the JMVAE-Zero learned similarities between $\q_{\phi_{\texta\textb}}$ and $\q_{\phi_{\texta}}$, it learned a complete new embedding for the classes $(1,2)$ with $\q_{\phi_{\textb}}$, denoted by $(*)$
+%
+%Furthermore, the ELBO per embedding allows no conclusion between the embeddings of the various encoders.
+%
+
+
+\subsection{In-Place Sensor Fusion}
+
+Further, we introduce the concept of in-place sensor fusion using multi-modal VAEs.
+%
+This approach is applicable in distributed active-sensing tasks where the latent space representation $z$ of observations $\mathcal{M}'$ (i.e. an object or point of interest was observed by a set of modalities) can be interpreted as inverse sensor model (c.f. \cite{Thrun2005}).
+%
+This compressed information can be efficiently transmitted between all sensing agents and also be updated as follows:
+%
+ $z$ can be unfolded to the original observation using the VAE's decoder networks and combined with any new observation $m$ to update the information in-place $z\rightarrow z^{*}$ via
+%
+\begin{align}
+q_{\phi_{m\!\cup\!\mathcal{M}'}}\(z^{*} |m,\mathcal{M}'\)
+\quad\text{ with }\quad\mathcal{M}'= \bigcup_{m'in\mathcal{M}'}\!\p_{\theta_{m'}}\( m'|z \)\text{.}
+\label{eq:sensor_fusion}
+\end{align}
+%
+% $q_{\phi_{m\!\cup\!\mathcal{M}'}}\(z_n |m\!\cup\!\mathcal{M}'\) = $.
+%\autoref{eq:sensor_fusion} performs sensor fusion in-place and is applied as depicted in Fig. \ref{fig:arch}.
+%
+However, a necessary requirement of Eq. \ref{eq:sensor_fusion} is that auto re-encoding (i.e. $z\rightarrow z$ via $\q_{\phi_{\mathcal{M}'}}\(z |\mathcal{M}'\)$) does not manipulate the information comprised by $z$ in an unrecoverable way (e.g. label-switching).
+%
+Thus, we assume that VAEs tend to have a natural denoising characteristic (despite the explicit denoising Auto Encoders) which should re-encode any $z$ in a better version of its own by means of the reconstruction loss wrt. $z$.
+%
+This behavior is shown in Fig. \ref{fig:attractor} where we underlay the latent representation with the reconstruction loss of every particular $z$.
+%
+One can see the learned discrimination of the latent space by means of high entropy separating the clusters vicinity.
+%
+Furthermore, initial $z$ values are auto re-encoded which draw the trajectories along their path in latent space.
+%
+The observable properties of the VAE are that every seed converges to a fixed-point while performing descending steps on the latent space manifold.
+%
+However, this statement is only valid in general for the proposed M\textsuperscript{2}VAE, as the JMVAE-Zero and tVAE learn no or only similar coherent latent spaces between the encoder networks.
+%
+Thus, seeds may be attracted by wrong attractors which makes these approach not sufficient for in-place sensor fusion.
+%
+
+\begin{figure}[h]
+	\def\svgwidth{\textwidth}
+	\tiny
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input_v2.pdf}
+	%\small
+	\input{attractor.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{\textbf{From top to bottom}: JMVAE-Zero, tVAE, and M\textsuperscript{2}VAE. \textbf{Left}: Latent space representation with class colorization. \textbf{Right}: Corresponding colorization of the latent space for every $z$ obtained by auto re-encoding. White dots denote randomly drawn seeds which auto re-encoding steps are represented by the black trajectory. See Fig. \ref{fig:experiment_mog_2} for legends.}
+	\label{fig:attractor}
+\end{figure}
+
+
+\subsection{e-MNIST Evaluation}
+
+For this experiment, we estimated the ELBO by Eq. \ref{eq:test_elbo} to evaluate the performance of models JMVAE-Zero, tVAE, and M\textsuperscript{2}VAE.
+%
+We chose the model wrt. to the evaluation in Fig. \ref{fig:experiment_mog} with $\beta_{\text{norm}}=0.01$ which is $\beta_{*}\approx 4$ for the given MNIST image dimension of $D_{a}=||\(28,28,1\)||$ and $D_{z}=2$.
+%
+\begin{table}[h]
+	\caption{Evidence lower bound test for uni- and multi-modal setups of the VAEs (higher is better).}
+	\label{tab:elbo_emnist}
+	\centering
+	\begin{tabular}{ccc|ccc|ccc}
+		\multicolumn{3}{c}{M\textsuperscript{2}VAE} & \multicolumn{3}{c}{tVAE} & \multicolumn{3}{c}{JMVAE-Zero}\\ \hline
+		$\elbo_{\a,\b}$ & $\elbo_{\a}$ & $\elbo_{\b}$ & $\elbo_{\a,\b}$ & $\elbo_{\a}$ & $\elbo_{\b}$ & $\elbo_{\a,\b}$ & $\elbo_{\a}$ & $\elbo_{\b}$ \\
+		$\mathbf{-10.75}$ & $\mathbf{-10.91}$ & $\mathbf{-16.01}$ & $-23.6$ & $-101.28$ & $-88.75$ & $-24.19$ & $-131.05$ & $-99.71$ 
+	\end{tabular}
+\end{table}
+%
+\begin{figure}[h]
+	\def\svgwidth{\textwidth}
+	\tiny
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\includegraphics[width=\textwidth]{MOoG_MMVAE_setup-0b1000_input_v2.pdf}
+	%\small
+	\input{emnist_eval.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{\textbf{From top to bottom}: JMVAE-Zero, tVAE, and M\textsuperscript{2}VAE. \textbf{Left}: Latent space representation with class colorization. \textbf{Right}: Reconstruction from latent space by applying the corresponding decoder networks. $z$ is sampled linearly within $2\sigma$ of the prior for all figures.}
+	\label{fig:emnist_eval}
+\end{figure}
+%
+However, Tbl. \ref{tab:elbo_emnist} shows quantitatively and Fig. \ref{fig:emnist_eval} depicts qualitatively that the proposed M\textsuperscript{2}VAE reaches the highest ELBO value, as well as it learns the most expressive latent space distribution.
+%
+Furthermore, by sampling from the latent space for data generation, the M\textsuperscript{2}VAE reveals crisp reconstructions in comparison to the other approaches.
+\begin{confidential}
+%
+%
+\subsection{Robot-Experiment}
+\label{sec:experiment_robot}
+%
+%
+\begin{figure}[ht]
+	%\def\svgwidth{\textwidth}
+	%\includegraphics[width=\textwidth]{picture.png}
+	% \small
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{AMiRo robots (left) and Robot-Experiment (right)}
+	\label{fig:picture}
+\end{figure}
+%
+\begin{figure*}[ht!]
+	\def\svgwidth{0.9\textwidth}
+	\footnotesize
+	% \small
+	%\input{MMVAE_tri_setup-0b1000_combined_bshared-0.01_buni-0.01_a-0.1_g-1.0_e-200.pdf_tex}
+	% \input{architecture_RL_application.pdf_tex}
+	\caption{\textit{Left}: Visualization of jointly trained latent space embeddings $z$ for all seven encoders $\q_{\phi_{*}}$ of the subsets $\mathcal{P}\(\mathcal{M}\)  \!\setminus\!\emptyset$ with $\mathcal{M}=\left\lbrace\a,\b,\c\right\rbrace$.
+		\textit{Left/Top}: Classes that are unambiguously detectable by a subset share similar distribution among all latent spaces (c.f. (1) vs. (a), (a,c), (a,b), and (a,b,c)). 
+		%Iff subset $\widetilde{\mathcal{M}}\!\subseteq\!\mathcal{M}$ as learned a good and unambiguous reconstruction (c.f. (c) vs. (4) or (a,b,c) vs. (3)).
+		Ambiguous detections from any set $\widetilde{\mathcal{M}}$ collapse to the mean value of the separable classes (c.f. (b,c) and (a,b,c) vs. (3) and (1)).
+		\textit{Left/Mid.}: ELBO coloring show high values for ambiguous embeddings and vice versa.
+		The ELBO decreases with every modality that joins the subset ((c) vs. (3) $\xrightarrow{\text{add obs. of (a)}}$ (a,c) vs. (3) $\xrightarrow{\text{add obs. of (b)}}$ (a,b,c) vs. (3)), whereas a subset which unambiguously detects a class has already the lowest ELBO value (c.f. (b) vs. (2) $\xrightarrow{\text{add obs. of (a)}}$ (a,b) vs. (2) $\xrightarrow{\text{add obs. of (c)}}$ (a,b,c) vs. (2))
+		\textit{Left/Bot.}: The KL-Divergence shows reciprocal behavior to the ELBO, as it has to tighten its shape against the prior to find an specific encoding that allows better reconstruction.
+		%
+		\textit{Right}: Evolution of the ELBO for jointly trained encoder/decoder networks in a tri-modal setup.
+		Minor subsets of $\mathcal{M}$ are always worse because they can never reconstruct ambiguous information (e.g. all encoders $\p_{\theta_{*}}$ are able to reconstruct $a'$, $b'$, and $c'$ if $\q_{\phi_{\texta}}$ encoded (1), but fail on $b'$ and $c'$ if it encodes (2), (3), or (4)).}
+	\label{fig:eval_latent_space_tri_modal}
+\end{figure*}
+%
+To train the M\textsuperscript{2}VAE and to obtain the desired behavior of a proper latent distribution, we apply three two-class \textit{support vector machine} (SVM) ($f_\texta$, $f_\textb$, $f_\textc$) to derive feature vectors for each modality with dimensionality $D_\texta\!\equiv\!D_\textb\!\equiv\!D_\textc$ (c.f. \autoref{fig:arch}).
+%
+Training the M\textsuperscript{2}VAE on raw data resulted in non-sufficient results.
+%We conjecture that this effect is caused by the necessarily bigger network architecture which causes the weights in deep layers to collapse \cite{Sonderby2016} and further, by the imbalance in the VAE's reconstruction loss term regarding varying modality dimensionality.
+We conjecture that this effect is caused by the necessarily larger network architecture which causes the weights in deep layers to collapse \cite{Sonderby2016} and by the imbalance in the reconstruction loss term for varying modality dimensionality.
+%
+The experiment was performed on a comprehensive scenario with four classes (c.f. \autoref{tab:class}) and three modalities $\mathcal{M}\!=\!\(\a,\b,\c\)$: 
+%
+$f_\texta\rightarrow\a$ i.e. a camera based \textit{feature extractor} (FE) that distinguishes between red and green objects;
+%
+$f_\b\rightarrow\b$ i.e. a LiDAR based FE that distinguishes between round and edgy objects;
+%
+$f_\c\rightarrow\c$ i.e. a proximity sensor based FE that distinguishes between reflective and mat objects.
+%
+The M\textsuperscript{2}VAE architecture is stated in Sec. \ref{sec:arcitectures}.
+%
+
+The required modality combinations to archive unambiguously classification of an object is shown in \autoref{tab:class}.
+%
+However, Fig. \ref{fig:eval_latent_space_tri_modal} shows, that the M\textsuperscript{2}VAE is able to detect ambiguous classifications (c.f. Tab. \ref{tab:class}) and is able to develop a coherent relation by means of distribution and ELBO.
+%
+
+We define the properties of an MDP to learn epistemic behavior as follows:
+$\mathcal{S}_r=\left( z_1, \ldots, z_N, D_{r_1}, \ldots, D_{r_N} \right)$ is the state vector comprising $N$ objects with feature $z$ and the current Euclidean normalized distance $D$ of robot $r$ to each object.
+%
+We added the distances to encourage myopic behavior, which leads to the fact that first ambiguities of nearer objects are resolved.
+%
+We allow free communication and thus, the object features $z$ are updated and shared among all robots.
+%
+$z_n=\(\mu_{1_n},\ldots,\mu_{{D_{z}}_n}, D_{\text{KL}}\)$ comprises the latent embedding of an object plus the current estimated KL-Divergence as a proxy of the ELBO.
+%
+It is worth mentioning, that calculating the ELBO by Eq. \ref{eq:test_elbo} for real subsets of $\mathcal{M}$ is only possible if the full observation is known.
+%
+This can only be ensured during training, as the ground truth is known, but not during testing.
+%
+Therefore, we use the KL-Divergence as a sufficient proxy for the ELBO, as it can directly derived from the sampled statistics ($\mu$ and $\sigma$) of the encoder network.
+%
+
+Each object $n$ can be observed by taking one action $a_n$, or the episode can be terminated before observing all objects by the selection of \textit{no operation} (NOP): $\mathcal{A}=\left( a_1, \ldots, a_N, \text{NOP} \right)$, while dependent on the robots modality $m$, an action $a_n$ samples from the posterior $q_{\phi_{m}}\(z_n | m_n\)$.
+%
+However, if there is a former observation of the object $n$ by any other set of modalities $\mathcal{M}'$, the former latent embedding $z'_n$ is first encoded after which the robot applies a multi-modal encoder
+%
+\begin{align}
+  q_{\phi_{m\!\cup\!\mathcal{M}'}}\(z_n |m,\mathcal{M}'\)
+  \text{ with }\mathcal{M}'=\bigcup_{m'in\mathcal{M}'}\!\p_{\theta_{m'}}\( m'|z'_n \)
+  \label{eq:sensor_fusion}
+\end{align}
+%
+% $q_{\phi_{m\!\cup\!\mathcal{M}'}}\(z_n |m\!\cup\!\mathcal{M}'\) = $.
+\autoref{eq:sensor_fusion} performs sensor fusion in-place and is applied as depicted in Fig. \ref{fig:arch}.
+
+% each other's modality, the encoder $q_{\phi}(z_n | x_n, w_n )$ is applied to perform sensor-fusion in place by generating the missing modality using $p_{\theta_{x}}(z_n)$ or $p_{\theta_{w}}(z_n)$ (c.f. \autoref{fig:sensor_fusion}).
+
+%$\mathcal{M}'\)$, with $\mathcal{M}'$ being the set of modalities which have seen the object $n$ before.
+
+We train a modality dependent deep Q-Network (c.f. architecture and parameters in Sec. \ref{sec:arcitectures}) to estimate the action $a_r$ which maximizes the ELBO decrease, given the current state $\mathcal{S}_r$.
+%
+Therefore, the reward $\mathcal{R}$ is defined by the increase of negative ELBO after observation of object $n$ by $\mathcal{R} \propto \Delta \mathcal{L}_n=\mathcal{L}'_n - \mathcal{L}_n$.
+%
+Thus, the reward is shaped as follows: $\mathcal{R}=\Delta \mathcal{L}_n + (1 - D_n)$ if the observation led to a decrease of the ELBO; $\mathcal{R}=-1$ if there is no decrease; quitting the exploration by NOP results in $\mathcal{R}=0$.
+%
+%For each robot, or more precisely each modality, an own Q-Network is trained.
+
+It is worth mentioning that there is no interaction between the agents and thus, the learning process is decoupled since all robots act independently of one another.
+%
+Furthermore, we estimate the distances during training geometrically and during testing in Gazebo in real life via ROS \texttt{move\_base}.
+%
+This decouples the training from performing real actions and allows the efficient sampling of object and robot positions to generate data which increases training time drastically.
+%
+As a matter of fact, the feature extractors $f_{*}$ abstracts the sensing in simulation and reality which allows zero-shot domain adaptation \cite{Higgins2017}.
+%
+%\footnote{Path planning and low level control is done by ROS \texttt{move\_base}}.
+%
+%
+%
+%
+%We performed experiments using three AMiRo mini-robots equipped with a camera, LiDAR, and proximity sensors \cite{Herbrechtsmeier2016a} to classify objects in the environment.
+%
+%The overall mapping and decision architecture is depicted in \autoref{fig:architecture_network}.
+%
+%Every robot explores the environment for objects and encodes the detection to a common map that is shared among all robots.
+%
+%Based on this environmental model, a modality specific DQN decides which robot has to pursue which object to increase the information in the map.
+%
+%It is worth mentioning, that the DQN only selects the target objects and has no spatial information nor direct control at the motor level\footnote{Path planning and low level control is done by ROS \texttt{move\_base}}.
+%We use the DQN algorithm by \cite{Mnih2015} for training the deep Q-Network and sample the test and training data from the Gazebo simulator.
+
+%The number of possible states of $\mathcal{M}\in\mathcal{S}$ is $\left|\mathcal{S}\right|=\#\text{PoI}!\cdot\#\text{PoI-encoding}^{\#\text{PoI} \#\text{mod.}}$, which is 384 for this relatively comprehensible experiment assuming only binary PoI-encodings.
+%Having continues encodings, as offered by the JMVAE, the task of controlling the robots by the means of handcrafted architectures based on the encodings becomes unfeasible.
+%Therefore, we train a DQN for which we select $z_n=\left(\left(\mu_{1,n},\sigma_{1,n}\right), \ldots,\left(\mu_{D_{z},n}, \sigma_{D_{z},n}\right)\right)\in \mathcal{M}$ and $I_n=1/\left\lVert \left( \sigma_{1,n}, \ldots, \sigma_{{D_{z}},n}\right)\right\rVert_2$.
+%
+%The reward is shaped as follows: $r=\Delta I_n$ if the observation led to a decrease of the ELBO; $r=-1$ if there is no decrease; quitting the exploration by NOP results in $r=0$.
+%The Network architecture and training parameters are listed in Sec. \ref{}
+%
+We evaluated the training by the total reward the agent collects in an episode averaged over a 512 randomly sampled environments.
+The average total reward metric is shown in Fig. \ref{fig:reward}; it demonstrates the successful adaptation of each modality's network to our task (c.f. application video\footnote{\url{https://goo.gl/ZuMwmb}}).
+%
+However, Fig. \ref{fig:reward} reveals no information about the epistemic behavior, as the reward comes from the unsupervised trained VAEs.
+%
+Thus, we measured the accuracy of all robots, taking the next most informative action (i.e. independent of distance) which we were able to evaluate due to the comprehensiveness of the experiment.
+%
+\autoref{tab:class} reveals that training a DQN by the proposed M\textsuperscript{2}VAE leads to the highest accuracy.
+%
+Eliminating the leverage of the distance dependent reward leads to an almost perfect behavior which remains only affected by the noisy feature extractors.
+%
+%The derived parameter set from the MoG-Experiment work pretty robust even for the tri-modal case, 
+%
+\begin{table}
+	\caption{Left: List of required modalities to perform unambiguous classification. Right: Accuracy of taking optimal actions to resolve ambiguity w/ and w/o a distance depended reward $\mathcal{R}$ over $1000$ experiments.}
+	\footnotesize
+	\begin{tabular}{cc}
+	\begin{tabular}{r c c c}
+		\textbf{class vs. modality}&$\a$&$\b$&$\c$\\
+		\hline			
+		green, mat, cyl. (1) & \checkmark &            & \\
+		red, mat, cube   (2) &            & \checkmark & \\
+		red, mat, cyl.   (3) & \checkmark & \checkmark & \checkmark\\
+		red, shiny, cyl. (4) &            &            & \checkmark
+	\end{tabular}
+	&
+	\begin{tabular}{r c c}
+		\textbf{Accuracy} & w/ & w/o \\
+		\hline			
+		JMVAE-Z.  & $65.99$,  & $69.78$ \\
+		tVAE      & $71.16$   & $81.38$ \\
+		M\textsuperscript{2}VAE     & $\mathbf{82.89}$   & $\mathbf{95.55}$ \\
+		          &           & 
+	\end{tabular}
+    \end{tabular}
+	\label{tab:class}
+\end{table}
+%
+%\begin{table}
+%	\caption{\juxi{taking a swing at this}
+%		For each of the four objects in our experiments different modalities are required to identify. Object 1, for example, is the only green object and is therefore uniquely identifiable with the colour sensor. Object 3 on the other hand requires observation by all three modalities to identify. \juxi{a picture of the four object might help too}}
+%	\footnotesize
+%	\begin{tabular}{ r | c l | c l | c l }
+%		\textbf{class vs.~modality} & \multicolumn{2}{c}{Colour} & \multicolumn{2}{c}{Geometry} & \multicolumn{2}{c}{Texture} \\
+%		\hline			
+%		Object 1      & green & \checkmark & cylinder      &        & matte &  \\ % green, mat, cylinder (
+%		Object 2      & red   &            & cube      & \checkmark & matte & \\ % red, mat, cube       (
+%		Object 3      & red   & \checkmark & cylinder  & \checkmark & matte & \checkmark \\% red, mat, cube       (
+%		Object 4      & red   &            & cylinder   &           & shiny & \checkmark %          & \checkmark % red, shiny, cylinder (
+%	\end{tabular}
+%	\label{tab:class}
+%\end{table}
+%
+%
+%
+%\textbf{Other than in the statement by Higgins \cite{Higgins2017}, data for classification needs to be non-continues.
+%For instance, shapes like cylinder, ovals, and edges which can be transiently represented by one factor in latent space, are not hard categorize.
+%Discontinues features, which also generate multiple factors in latent space, are better for detection.}
+%
+\begin{figure}[ht]
+	%\def\svgwidth{\textwidth}
+	%\includegraphics[width=0.6\textwidth]{reward_during_training.png}
+	% \small
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf_tex}
+	%\input{MOoG_MMVAE_setup-0b1000_input.pdf}
+	%\input{architecture_RL_application.pdf_tex}
+	\caption{Average reward during training.}
+	\label{fig:reward}
+\end{figure}
+%
+\end{confidential}
